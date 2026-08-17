@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -45,11 +46,17 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**", "/*/admin/**", "/*/admin/").hasRole("ADMIN")
-                        .requestMatchers("/api/pages/sections", "/api/pages/sections/**")
-                                .hasRole("ADMIN")
-                        .requestMatchers("/account/**").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/admin/**", "/*/admin/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/pages/sections/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/", "/users/sign_in", "user/sign_up")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/sign_in", "/users")
+                        .permitAll()
+
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(rs -> rs
